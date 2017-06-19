@@ -1,0 +1,24 @@
+#ifndef BUILD_VERSION_H
+#define BUILD_VERSION_H
+
+// Auto Generated from Infile. Do NOT Edit!!!
+// Author Robert J. Gebis (oxoocoffee)
+
+// the configured options and settings 
+#define APP_BUILD_VERSION       "@APP_BUILD_VERSION@"
+#define APP_BUILD_SYSTEM        "@CMAKE_SYSTEM@"
+
+#define APP_VERSION_MAJOR       @APP_VERSION_MAJOR@
+#define APP_VERSION_MINOR       @APP_VERSION_MINOR@
+#define APP_VERSION_PATCH       @APP_VERSION_PATCH@
+#define APP_VERSION_REVISION    "@APP_VERSION_REVISION@"
+
+// Define Path seperator based on system build
+#define PATH_SEPARATOR          @PATH_SEPARATOR@
+
+#define DEBUG                   @DEFINE_DEBUG_BUILD@
+#define APP_TRACE               @DEFINE_APP_TRACE_ENABLE@
+
+#define COMPILER_VERSION        __VERSION__
+
+#endif // BUILD_VERSION_H
