@@ -1,0 +1,6 @@
+*.swp
+*.swo
+*.~
+*.autosave
+.~*
+CMakeLists.txt.user

@@ -27,6 +27,20 @@ set(APP_VERSION_REVISION   0)
 # In this project we only enabling C++ project (CXX). For C based project replace CXX with C or you can mix CXX C
 project(${PROJ_NAME} VERSION "${APP_VERSION_MAJOR}.${APP_VERSION_MINOR}.${APP_VERSION_PATCH}.0" LANGUAGES CXX)
 
+add_definitions(-DQT_NO_KEYWORDS)
+
+# Set this variables since they are not used so cmake will not give you warning like
+# CMake Warning:
+#   Manually-specified variables were not used by the project:
+#
+#    CMAKE_C_COMPILER
+#    QT_QMAKE_EXECUTABLE
+
+set(ignoreMe "${CMAKE_C_COMPILER} ${QT_QMAKE_EXECUTABLE}")
+
+# Check if the given <include> file may be included in a CXX source
+include(CheckIncludeFileCXX)
+
 #-----------------------------------------------------------------------
 macro(list_files list)
     if (DEFINE_LIST_SOURCES )
@@ -35,6 +49,25 @@ macro(list_files list)
         endforeach(infileName)
     endif(DEFINE_LIST_SOURCES)
 endmacro()
+
+#-----------------------------------------------------------------------
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_C_FLAGS     "${CMAKE_C_FLAGS} -Wall -pedantic -Wextra -Wunused-parameter -Wformat-security -Wunreachable-code -fdata-sections -ffunction-sections -Wcast-align")
+set(CMAKE_CXX_FLAGS   "${CMAKE_CXX_FLAGS} -Wall -pedantic -Wextra -Wunused-parameter -Wformat-security -Wunreachable-code -fdata-sections -ffunction-sections -Wcast-align")
+
+set(CMAKE_C_FLAGS_DEBUG   "-O0" CACHE INTERNAL "C debug compiler flags")
+set(CMAKE_CXX_FLAGS_DEBUG "-O0" CACHE INTERNAL "C++ debug compiler flags")
+set(CMAKE_ASM_FLAGS_DEBUG "-g"  CACHE INTERNAL "ASM debug compiler flags")
+
+set(CMAKE_C_FLAGS_RELEASE   "-Os -flto" CACHE INTERNAL "C release compiler flags")
+set(CMAKE_CXX_FLAGS_RELEASE "-Os -flto" CACHE INTERNAL "C++ release compiler flags")
+set(CMAKE_ASM_FLAGS_RELEASE ""          CACHE INTERNAL "ASM release compiler flags")
+
+# If cmake -DCMAKE_BUILD_TYPE=[DEBUG|RELEASE] ..
+if( NOT CMAKE_BUILD_TYPE)
+    set(CMAKE_BUILD_TYPE Debug)
+endif()
 
 #-----------------------------------------------------------------------
 # Add include folder to compiler search path so foo.h can be found
