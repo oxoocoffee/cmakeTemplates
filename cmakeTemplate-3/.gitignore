@@ -8,4 +8,3 @@ include/buildVersion.h
 cmake/inConfig/app_profile.sh
 cmake/inConfig/cmake_uninstall.cmake
 ramdisk
-doxygen-html

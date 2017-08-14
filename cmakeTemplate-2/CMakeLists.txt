@@ -53,6 +53,12 @@ option(DEFINE_APP_TRACE_ENABLE
 option(DEFINE_DOXYGEN_ENABLE
     "Enable Doxygen documentation" OFF)     # Disabled by default
 
+option(DEFINE_DOXYGEN_INSTALL
+    "Install Doxygen documentation" OFF)     # Disabled by default
+
+option(DEFINE_STACK_PROTECTOR
+    "Build with stact protector" OFF)       # Disabled by default
+
 #-----------------------------------------------------------------------
 # Remap above values which will be used to generate header file
 if(DEFINE_APP_TRACE_ENABLE)
@@ -60,6 +66,10 @@ if(DEFINE_APP_TRACE_ENABLE)
 else()
     set(DEFINE_APP_TRACE_ENABLE 0)
 endif()
+
+if(DEFINE_DOXYGEN_INSTALL)
+    set(DEFINE_DOXYGEN_ENABLE ON)
+endif(DEFINE_DOXYGEN_INSTALL)
 
 #-----------------------------------------------------------------------
 
@@ -85,6 +95,11 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_C_FLAGS     "${CMAKE_C_FLAGS} -Wall -pedantic -Wextra -Wunused-parameter -Wformat-security -Wunreachable-code -fdata-sections -ffunction-sections -Wcast-align")
 set(CMAKE_CXX_FLAGS   "${CMAKE_CXX_FLAGS} -Wall -pedantic -Wextra -Wunused-parameter -Wformat-security -Wunreachable-code -fdata-sections -ffunction-sections -Wcast-align")
 
+if(DEFINE_STACK_PROTECTOR)
+    set(CMAKE_C_FLAGS     "${CMAKE_C_FLAGS} -fstack-protector-all")
+    set(CMAKE_CXX_FLAGS   "${CMAKE_CXX_FLAGS} -fstack-protector-all")
+endif(DEFINE_STACK_PROTECTOR)
+
 # If LANGUAGES C enable above in project()
 set(CMAKE_C_FLAGS_DEBUG   "-O0" CACHE INTERNAL "C debug compiler flags")
 # If LANGUAGES CXX enable above in project()
@@ -102,21 +117,21 @@ set(CMAKE_ASM_FLAGS_RELEASE ""          CACHE INTERNAL "ASM release compiler fla
 #-----------------------------------------------------------------------
 # If cmake -DCMAKE_BUILD_TYPE=[DEBUG|RELEASE] ..
 if( NOT CMAKE_BUILD_TYPE)
-    set(CMAKE_BUILD_TYPE Debug)
+    set(CMAKE_BUILD_TYPE DEBUG)
 endif()
 
 string( TOUPPER ${CMAKE_BUILD_TYPE} DEFINE_DEBUG_BUILD)
 
 # AB_BUILD_TYPE is used to flag source code DEBUG definition
 if(DEFINE_DEBUG_BUILD STREQUAL DEBUG)
-    set(DEFINE_DEBUG_BUILD "1")
+    set(DEFINE_DEBUG_BUILD "1") # This is set to output in buildVersion.h.in
     add_definitions(-DDEBUG)
     if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_COMPILER_IS_GNUCC)
         set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -ggdb")
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ggdb")
     endif()
 else()
-    set(DEFINE_DEBUG_BUILD "0")
+    set(DEFINE_DEBUG_BUILD "0") # This is set to output in buildVersion.h.in
     add_definitions(-DRELEASE)
 endif()
 
@@ -210,11 +225,23 @@ message(STATUS "  Build Version  ${APP_BUILD_VERSION}")
 message(STATUS "  System Version ${CMAKE_SYSTEM_VERSION}")
 message(STATUS "  Force RPATH Install=${DEFINE_INSTALL_RPATH_ENABLE}")
 message(STATUS " -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}")
+message(STATUS " -DDEFINE_STACK_PROTECTOR=${DEFINE_STACK_PROTECTOR}")
 message(STATUS " -DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}")
 message(STATUS " -DDEFINE_LIST_SOURCES=${DEFINE_LIST_SOURCES}")
 message(STATUS " -DDEFINE_DOXYGEN_ENABLE=${DEFINE_DOXYGEN_ENABLE}")
+message(STATUS " -DDEFINE_DOXYGEN_INSTALL=${DEFINE_DOXYGEN_INSTALL}")
 
 message(STATUS "=========================================")
+
+#-----------------------------------------------------------------------
+# These section enables QT Creator support
+FILE(GLOB_RECURSE InFiles "${CMAKE_CURRENT_SOURCE_DIR}/cmake/inConfig/*.in")
+
+add_custom_target(in-files SOURCES ${InFiles})
+
+FILE(GLOB_RECURSE moduleFiles "${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules/*")
+
+add_custom_target(modules-local SOURCES ${moduleFiles})
 
 #-----------------------------------------------------------------------
 # Add include folder to compiler search path so foo.h can be found
@@ -250,22 +277,27 @@ add_custom_target(uninstall
 if(DOXYGEN_FOUND)
     message(STATUS "Building ${COMPANY_NAME} - Doxygen documentation")
 
-    configure_file(${CMAKE_CURRENT_SOURCE_DIR}/scripts/doxyfile.in ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile @ONLY)
+    configure_file(${CMAKE_CURRENT_SOURCE_DIR}/scripts/doxyfile.in ${CMAKE_CURRENT_BINARY_DIR}/doxyfile @ONLY)
 
     # Remove ALL if you do not want to auto create
     # doxygen on make. If you remove ALL then you will
-    # have to do "make doc"
-    #add_custom_target(doc ALL
-    add_custom_target(doc
-        ${DOXYGEN_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile
-        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+    # have to do "make doxygen"
+    #add_custom_target(doxygen ALL
+
+    if(DEFINE_DOXYGEN_INSTALL)
+        set(BUILD_ON_MAKE ALL)
+    endif(DEFINE_DOXYGEN_INSTALL)
+
+    add_custom_target(doxygen ${BUILD_ON_MAKE}
+        ${DOXYGEN_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/doxyfile
+        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
         COMMENT "Generating API documentation with Doxygen" VERBATIM)
 
 endif(DOXYGEN_FOUND)
 
-if(DEFINE_DOXYGEN_ENABLE)
-    install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/html/ DESTINATION share/${COMPANY_NAME}/${PROJ_NAME})
-endif(DEFINE_DOXYGEN_ENABLE)
+if(DEFINE_DOXYGEN_ENABLE AND DEFINE_DOXYGEN_INSTALL)
+    install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/doxygen-html/ DESTINATION share/${COMPANY_NAME}/${PROJ_NAME})
+endif(DEFINE_DOXYGEN_ENABLE AND DEFINE_DOXYGEN_INSTALL)
 
 #-----------------------------------------------------------------------
 # CPack

@@ -13,7 +13,8 @@ file(GLOB app_SRCS src/*.cpp include/*.h)
 
 list_files( "${app_SRCS}" )
 
-include_directories(include ../include ${CAN_CONFIG_BIN_INCLUDE})
+include_directories(include
+                    ${APP_CONFIG_SRC_PATH}) # include buildVersion.h
 
 add_library(${APP_LIB_NAME} ${app_SRCS})
 

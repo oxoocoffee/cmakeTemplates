@@ -8,9 +8,9 @@
 #define APP_BUILD_VERSION       "@APP_BUILD_VERSION@"
 #define APP_BUILD_SYSTEM        "@CMAKE_SYSTEM@"
 
-#define APP_VERSION_MAJOR       @APP_VERSION_MAJOR@
-#define APP_VERSION_MINOR       @APP_VERSION_MINOR@
-#define APP_VERSION_PATCH       @APP_VERSION_PATCH@
+#define APP_VERSION_MAJOR       "@APP_VERSION_MAJOR@"
+#define APP_VERSION_MINOR       "@APP_VERSION_MINOR@"
+#define APP_VERSION_PATCH       "@APP_VERSION_PATCH@"
 #define APP_VERSION_REVISION    "@APP_VERSION_REVISION@"
 
 // Define Path seperator based on system build

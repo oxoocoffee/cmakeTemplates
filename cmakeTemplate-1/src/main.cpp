@@ -1,7 +1,11 @@
 #include "BaseClass.h"
+#include <iostream>
 
 int main()
 {
-    cout << "Hello World!" << endl;
+    BaseClass base;
+
+    base.print();
+
     return 0;
 }

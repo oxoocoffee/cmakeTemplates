@@ -1,13 +1,24 @@
 #include "myAppLib.h"
+#include "buildVersion.h"
 #include <iostream>
 
 MyAppLib::MyAppLib(void)
 {
-    std::cout << " MyAppLib CTor" << std::endl;
+    STACK
+
+    std::cout << " MyAppLib::MyAppLib()" << std::endl;
 }
 
 MyAppLib::~MyAppLib(void)
 {
-    std::cout << " MyAppLib DTor" << std::endl;
+    STACK
+
+    std::cout << " MyAppLib::~MyAppLib()" << std::endl;
 }
 
+void    MyAppLib::print(void)
+{
+    STACK
+
+    std::cout << " MyAppLib::print(Hello World!!!)" << std::endl;
+}
